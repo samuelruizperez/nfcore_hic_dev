@@ -11,7 +11,7 @@ process MERGE_VALID_INTERACTION {
     tuple val(meta), path(vpairs)
 
     output:
-    tuple val(meta), path("*.allValidPairs"), emit: valid_pairs
+    tuple val(meta), path("*.allValidPairs.gz"), emit: valid_pairs
     path("${meta.id}/"), emit:mqc
     path("*mergestat"), emit:stats
     path("versions.yml"), emit: versions
@@ -21,6 +21,9 @@ process MERGE_VALID_INTERACTION {
     def args = task.ext.args ?: ''
     """
     hicpro_merge_validpairs.sh ${args} -p ${prefix} ${vpairs}
+
+    ## Compress allValidPairs to gz
+    gzip -c ${prefix}.allValidPairs > ${prefix}.allValidPairs.gz
 
     ## For MultiQC
     mkdir -p ${prefix}

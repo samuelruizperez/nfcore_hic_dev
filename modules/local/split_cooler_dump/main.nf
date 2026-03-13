@@ -11,7 +11,7 @@ process SPLIT_COOLER_DUMP {
     tuple val(meta), path(bedpe)
 
     output:
-    tuple val(meta), path("*.txt"), emit: matrix
+    tuple val(meta), path("*.txt.gz"), emit: matrix
     path ("versions.yml"), emit: versions
 
     when:
@@ -21,9 +21,9 @@ process SPLIT_COOLER_DUMP {
     def args = task.ext.args ?: ''
     prefix = bedpe.toString() - ~/(\_balanced)?.bedpe$/
     """
-    cat ${bedpe} | awk '{OFS="\t"; print \$1,\$2,\$3}' > ${prefix}_raw.txt
-    cat ${bedpe} | awk '{OFS="\t"; print \$1,\$2,\$4}' > ${prefix}_balanced.txt
-
+    awk '{OFS="\\t"; print \$1,\$2,\$3}' ${bedpe} | gzip > ${prefix}_raw.txt.gz
+    awk '{OFS="\\t"; print \$1,\$2,\$4}' ${bedpe} | gzip > ${prefix}_balanced.txt.gz
+    
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         cooler: \$(awk --version | head -1 | cut -f1 -d, | sed -e 's/GNU Awk //')
